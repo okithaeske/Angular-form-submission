@@ -1,4 +1,3 @@
-
 :host {
   display: flex;
   flex-direction: column;
@@ -69,7 +68,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   padding: 0.75rem 1rem;
   text-align: left;
   border-bottom: 1px solid #e2e8f0;
@@ -78,4 +78,26 @@ th, td {
 th {
   font-weight: 600;
   color: #1f2937;
+}
+
+.no-records {
+  text-align: center;
+  color: #999;
+  margin-top: 1rem;
+}
+
+.actionbtn{
+  margin-right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: #ffffff;
+  background-color: #10b981;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.actionbtn:hover {
+  background-color: #059669;
 }

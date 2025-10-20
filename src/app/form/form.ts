@@ -9,6 +9,4 @@ import { RouterLink } from '@angular/router';
   templateUrl: './form.html',
   styleUrl: './form.scss'
 })
-export class Form {
-  
-}
+export class Form {}
