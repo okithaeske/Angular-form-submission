@@ -1,4 +1,4 @@
-<form class="form-card" (ngSubmit)="postForm()" #studentForm="ngForm">
+﻿<form class="form-card" (ngSubmit)="postForm(studentForm)" #studentForm="ngForm">
   <h2 class="form-title">Student Information</h2>
 
   <div class="form-grid">
@@ -12,6 +12,9 @@
         [(ngModel)]="name"
         required
       />
+      <div>
+        <p *ngIf="studentForm.submitted && !name" class="error-message">Name is required.</p>
+      </div>
     </div>
 
     <div class="form-group form-group--half">
@@ -24,6 +27,11 @@
         [(ngModel)]="studentId"
         required
       />
+      <div>
+        <p *ngIf="studentForm.submitted && !studentId" class="error-message">
+          Student ID is required.
+        </p>
+      </div>
     </div>
 
     <div class="form-group">
@@ -36,6 +44,9 @@
         [(ngModel)]="email"
         required
       />
+      <div>
+        <p *ngIf="studentForm.submitted && !email" class="error-message">Email is required.</p>
+      </div>
     </div>
 
     <div class="form-group">
@@ -48,11 +59,17 @@
         [(ngModel)]="courseName"
         required
       />
+      <div>
+        <p *ngIf="studentForm.submitted && !courseName" class="error-message">
+          Course Name is required.
+        </p>
+      </div>
     </div>
   </div>
 
   <div class="form-group">
+    <button type="submit" class="btn">Submit</button>
     <button type="button" class="btn" routerLink="/">Back</button>
-    <button type="submit" class="btn"  >Submit</button>
   </div>
 </form>
+

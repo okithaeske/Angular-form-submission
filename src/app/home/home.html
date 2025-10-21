@@ -1,4 +1,4 @@
-<section class="hero">
+﻿<section class="hero">
   <div class="hero-content">
     <h1 class="hero-title">Welcome to Student Form Submission</h1>
     <button type="button" routerLink="/form" class="btn">Go to Form</button>
@@ -9,25 +9,31 @@
   <h2 class="records-title">Recent Submissions</h2>
   <div class="table-wrapper">
     <table>
-      <tr>
-        <th>Name</th>
-        <th>Student ID</th>
-        <th>Email</th>
-        <th>Course Name</th>
-      </tr>
-      <tr *ngFor="let student of students">
-        <td>{{ student.name }}</td>
-        <td>{{ student.studentId }}</td>
-        <td>{{ student.email }}</td>
-        <td>{{ student.courseName }}</td>
-        <td class="actions">
-          <button class="actionbtn">Edit</button>
-          <button class="actionbtn" (click)="deleteStudent(student.studentId)">Delete</button>
-        </td>
-      </tr>
-
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Student ID</th>
+          <th>Email</th>
+          <th>Course Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let student of students">
+          <td>{{ student.name }}</td>
+          <td>{{ student.studentId }}</td>
+          <td>{{ student.email }}</td>
+          <td>{{ student.courseName }}</td>
+          <td class="actions">
+            <button class="actionbtn" [routerLink]="['/form',student.id]">Edit</button>
+            <button class="actionbtn" (click)="deleteStudent(student.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
     </table>
 
     <p *ngIf="students.length == 0" class="no-records">No records found</p>
   </div>
 </section>
+
+
