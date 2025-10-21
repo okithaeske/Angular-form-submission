@@ -1,31 +1,58 @@
-
-<form class="form-card" action="">
+<form class="form-card" (ngSubmit)="postForm()" #studentForm="ngForm">
   <h2 class="form-title">Student Information</h2>
 
   <div class="form-grid">
     <div class="form-group form-group--half">
       <label for="name">Name</label>
-      <input type="text" id="name" name="name" placeholder="Alex Johnson" />
+      <input
+        type="text"
+        id="name"
+        name="name"
+        placeholder="Alex Johnson"
+        [(ngModel)]="name"
+        required
+      />
     </div>
 
     <div class="form-group form-group--half">
       <label for="student-id">Student ID</label>
-      <input type="text" id="student-id" name="student-id" placeholder="S12345678" />
+      <input
+        type="text"
+        id="student-id"
+        name="student-id"
+        placeholder="S12345678"
+        [(ngModel)]="studentId"
+        required
+      />
     </div>
 
     <div class="form-group">
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="alex.johnson@example.edu" />
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="alex.johnson@example.edu"
+        [(ngModel)]="email"
+        required
+      />
     </div>
 
     <div class="form-group">
       <label for="course-name">Course Name</label>
-      <input type="text" id="course-name" name="course-name" placeholder="Introduction to Computer Science" />
+      <input
+        type="text"
+        id="course-name"
+        name="course-name"
+        placeholder="Introduction to Computer Science"
+        [(ngModel)]="courseName"
+        required
+      />
     </div>
   </div>
 
   <div class="form-group">
     <button type="button" class="btn" routerLink="/">Back</button>
-    <button type="submit" class="btn">Submit</button>
+    <button type="submit" class="btn"  >Submit</button>
   </div>
 </form>

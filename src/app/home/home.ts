@@ -19,8 +19,13 @@ export class Home {
 
   // get students form
   async getStudents(): Promise<Home[]> {
-    const data = await fetch(this.url);
-    return (await data.json()) ?? [];
+    try {
+      const data = await fetch(this.url);
+      return (await data.json()) ?? [];
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      return [];
+    }
   }
 
   // delete student form
