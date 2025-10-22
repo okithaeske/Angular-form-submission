@@ -1,7 +1,20 @@
 ﻿<section class="hero">
   <div class="hero-content">
     <h1 class="hero-title">Welcome to Student Form Submission</h1>
-    <button type="button" routerLink="/form" class="btn">Go to Form</button>
+    <!-- If logged in, show Go to Form -->
+    <button type="button" routerLink="/form" class="btn" *ngIf="auth.isLoggedIn()">
+      Go to Form
+    </button>
+
+    <!-- If NOT logged in, show Login -->
+    <button type="button" class="btn" (click)="auth.login()" *ngIf="!auth.isLoggedIn()">
+      Login to continue
+    </button>
+
+    <!-- Optional logout when logged in -->
+    <button type="button" class="btn" (click)="auth.logout()" *ngIf="auth.isLoggedIn()">
+      Logout
+    </button>
   </div>
 </section>
 
@@ -25,7 +38,7 @@
           <td>{{ student.email }}</td>
           <td>{{ student.courseName }}</td>
           <td class="actions">
-            <button class="actionbtn" [routerLink]="['/form',student.id]">Edit</button>
+            <button class="actionbtn" [routerLink]="['/form', student.id]">Edit</button>
             <button class="actionbtn" (click)="deleteStudent(student.id)">Delete</button>
           </td>
         </tr>
@@ -35,5 +48,3 @@
     <p *ngIf="students.length == 0" class="no-records">No records found</p>
   </div>
 </section>
-
-

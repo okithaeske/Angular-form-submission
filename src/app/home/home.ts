@@ -1,6 +1,7 @@
-﻿import { Component } from '@angular/core';
+﻿import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { KeycloakService } from '../auth/keycloak.service';
 
 @Component({
   selector: 'app-home',
@@ -10,6 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './home.scss',
 })
 export class Home {
+  auth = inject(KeycloakService);
   url = 'http://localhost:5195/api/students';
   students: any[] = [];
 
