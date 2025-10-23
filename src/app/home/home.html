@@ -19,7 +19,7 @@
   </div>
 </section>
 
-<section class="records">
+<section class="records" *ngIf="auth.isLoggedIn()">
   <h2 class="records-title">Recent Submissions</h2>
   <div class="table-wrapper">
     <table>
