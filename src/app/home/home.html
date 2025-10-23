@@ -10,11 +10,12 @@
     <button type="button" class="btn" (click)="auth.login()" *ngIf="!auth.isLoggedIn()">
       Login to continue
     </button>
-
-    <!-- Optional logout when logged in -->
-    <button type="button" class="btn" (click)="auth.logout()" *ngIf="auth.isLoggedIn()">
-      Logout
-    </button>
+    <div class="auth-buttons">
+      <!-- Optional logout when logged in -->
+      <button type="button" class="authbtn" (click)="auth.logout()" *ngIf="auth.isLoggedIn()">
+        Logout
+      </button>
+    </div>
   </div>
 </section>
 

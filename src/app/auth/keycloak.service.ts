@@ -27,7 +27,7 @@ export class KeycloakService {
     const opts: KeycloakInitOptions = {
       onLoad: 'check-sso',
       pkceMethod: 'S256',
-      silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+      // silentCheckSsoRedirectUri: window.location.origin + '/src/silent-check-sso.html',
     };
 
     return this.keycloak.init(opts);
