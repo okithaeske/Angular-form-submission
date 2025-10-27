@@ -3,6 +3,7 @@ import { Home } from './home/home';
 import { Form } from './form/form';
 import { inject } from '@angular/core';
 import { KeycloakService } from './auth/keycloak.service';
+import { Csv } from './csv/csv';
 
 const authGuard: CanActivateFn = () => {
   const kc = inject(KeycloakService);
@@ -16,4 +17,5 @@ export const routes: Routes = [
   { path: '', component: Home },
   { path: 'form', component: Form, canActivate: [authGuard] },
   { path: 'form/:id', component: Form, canActivate: [authGuard] },
+  {path: 'csv', component: Csv, canActivate: [authGuard]}
 ];

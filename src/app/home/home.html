@@ -1,51 +1,106 @@
-﻿<section class="hero">
-  <div class="hero-content">
-    <h1 class="hero-title">Welcome to Student Form Submission</h1>
-    <!-- If logged in, show Go to Form -->
-    <button type="button" routerLink="/form" class="btn" *ngIf="auth.isLoggedIn()">
-      Go to Form
-    </button>
+<nav class="main-nav" [class.main-nav--open]="navOpen">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <a routerLink="/" class="brand-link" (click)="closeNav()">Student Forms</a>
+      <button
+        type="button"
+        class="nav-toggle"
+        (click)="toggleNav()"
+        [attr.aria-expanded]="navOpen"
+        aria-controls="navActions"
+      >
+        <span class="sr-only">Toggle navigation</span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+    </div>
 
-    <!-- If NOT logged in, show Login -->
-    <button type="button" class="btn" (click)="auth.login()" *ngIf="!auth.isLoggedIn()">
-      Login to continue
-    </button>
-    <div class="auth-buttons">
-      <!-- Optional logout when logged in -->
-      <button type="button" class="authbtn" (click)="auth.logout()" *ngIf="auth.isLoggedIn()">
+    <div class="nav-actions" id="navActions" [class.nav-actions--open]="navOpen">
+      <button type="button" class="nav-btn nav-btn--ghost" (click)="openNotifications()">
+        Notifications
+        <span class="notification-dot" *ngIf="hasUnreadNotifications"></span>
+      </button>
+      <button
+        type="button"
+        class="nav-btn"
+        (click)="closeNav(); auth.login()"
+        *ngIf="!auth.isLoggedIn()"
+      >
+        Login
+      </button>
+      <button
+        type="button"
+        class="nav-btn nav-btn--outline"
+        (click)="closeNav(); auth.register()"
+        *ngIf="!auth.isLoggedIn()"
+      >
+        Register
+      </button>
+      <button
+        type="button"
+        class="nav-btn nav-btn--danger"
+        (click)="closeNav(); auth.logout()"
+        *ngIf="auth.isLoggedIn()"
+      >
         Logout
       </button>
     </div>
   </div>
-</section>
+</nav>
 
-<section class="records" *ngIf="auth.isLoggedIn()">
-  <h2 class="records-title">Recent Submissions</h2>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Student ID</th>
-          <th>Email</th>
-          <th>Course Name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let student of students">
-          <td>{{ student.name }}</td>
-          <td>{{ student.studentId }}</td>
-          <td>{{ student.email }}</td>
-          <td>{{ student.courseName }}</td>
-          <td class="actions">
-            <button class="actionbtn" [routerLink]="['/form', student.id]">Edit</button>
-            <button class="actionbtn" (click)="deleteStudent(student.id)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<main class="page-content">
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Welcome to Student Form Submission</h1>
+      <p class="hero-subtitle">
+        Manage student enrolments and keep records organised in one place.
+      </p>
 
-    <p *ngIf="students.length == 0" class="no-records">No records found</p>
-  </div>
-</section>
+      <button type="button" routerLink="/form" class="btn" *ngIf="auth.isLoggedIn()">
+        Go to Form
+      </button>
+
+      <p class="hero-cta" *ngIf="!auth.isLoggedIn()">
+        Use the navigation bar to sign in or create an account before submitting student details.
+      </p>
+    </div>
+  </section>
+
+  <section class="records" *ngIf="auth.isLoggedIn()">
+    <div class="records-inner">
+      <h2 class="records-title">Recent Submissions</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Student ID</th>
+              <th>Email</th>
+              <th>Course Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let student of students">
+              <td>{{ student.name }}</td>
+              <td>{{ student.studentId }}</td>
+              <td>{{ student.email }}</td>
+              <td>{{ student.courseName }}</td>
+              <td class="actions">
+                <button class="actionbtn" [routerLink]="['/form', student.id]">Edit</button>
+                <button class="actionbtn" (click)="deleteStudent(student.id)">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p *ngIf="students.length == 0" class="no-records">No records found</p>
+      </div>
+
+      <div class="csv-actions">
+        <button class="btn" routerLink="/csv">Upload CSV</button>
+      </div>
+    </div>
+  </section>
+</main>

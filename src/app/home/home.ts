@@ -1,4 +1,4 @@
-﻿import { Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { KeycloakService } from '../auth/keycloak.service';
@@ -14,6 +14,8 @@ export class Home {
   auth = inject(KeycloakService);
   url = 'http://localhost:5195/api/students';
   students: any[] = [];
+  hasUnreadNotifications = false;
+  navOpen = false;
 
   async ngOnInit() {
     this.students = await this.getStudents();
@@ -51,5 +53,22 @@ export class Home {
   async getStudentsbyID(id: number): Promise<any | undefined> {
     const data = await fetch(`${this.url}/${id}`);
     return (await data.json()) ?? {};
+  }
+
+  openNotifications() {
+    const message = this.hasUnreadNotifications
+      ? 'You have new notifications.'
+      : 'No new notifications right now.';
+    alert(message);
+    this.hasUnreadNotifications = false;
+    this.closeNav();
+  }
+
+  toggleNav() {
+    this.navOpen = !this.navOpen;
+  }
+
+  closeNav() {
+    this.navOpen = false;
   }
 }

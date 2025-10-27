@@ -19,7 +19,7 @@ export class KeycloakService {
     }
 
     this.keycloak = new Keycloak({
-      url: 'http://localhost:8080',   // Keycloak base URL
+      url: 'http://localhost:8080', // Keycloak base URL
       realm: 'master',
       clientId: 'test-forms',
     });
@@ -36,6 +36,13 @@ export class KeycloakService {
   login(): Promise<void> {
     if (this.isBrowser) {
       return this.keycloak.login({ redirectUri: window.location.origin });
+    }
+    return Promise.resolve();
+  }
+
+  register(): Promise<void> {
+    if (this.isBrowser) {
+      return this.keycloak.register({ redirectUri: window.location.origin });
     }
     return Promise.resolve();
   }

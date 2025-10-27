@@ -1,0 +1,29 @@
+<section class="csv-card">
+  <header class="csv-header">
+    <h1 class="csv-title">Import Students via CSV</h1>
+    <p class="csv-subtitle">
+      Choose a comma-separated file that follows the student template. We will use the header row to
+      map each field.
+    </p>
+  </header>
+
+  <form class="csv-form" action="" novalidate>
+    <div class="upload-area">
+      <h2 class="upload-title">Upload CSV file</h2>
+      <p class="upload-info">
+        Click the button below to browse your computer and select a .csv file containing the records
+        you want to import.
+      </p>
+
+      <label for="csvUpload" class="upload-trigger">Choose CSV file</label>
+      <input type="file" id="csvUpload" (change)="onFileSelected($event)" accept=".csv" hidden />
+
+      <p class="upload-hint">Accepted format: .csv</p>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn">Submit</button>
+      <button type="button" class="btn btn--ghost" routerLink="/">Back</button>
+    </div>
+  </form>
+</section>
