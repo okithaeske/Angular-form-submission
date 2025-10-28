@@ -16,6 +16,6 @@ const authGuard: CanActivateFn = () => {
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'form', component: Form, canActivate: [authGuard] },
-  { path: 'form/:id', component: Form, canActivate: [authGuard] },
+  { path: 'form/:id', component: Form, canActivate: [authGuard], data: { renderMode: 'client-only' } },
   {path: 'csv', component: Csv, canActivate: [authGuard]}
 ];
