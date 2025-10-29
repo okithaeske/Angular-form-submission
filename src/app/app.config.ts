@@ -1,21 +1,32 @@
-import { ApplicationConfig, APP_INITIALIZER, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideClientHydration } from '@angular/platform-browser';
 import { KeycloakService } from './auth/keycloak.service';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 
 function initKeycloak(kc: KeycloakService) {
   return () => kc.init();
 }
 
+const routeConfig = routes.map(route => {
+  if (route.path?.includes(':')) {
+    return {
+      ...route,
+      data: {
+        ...route.data,
+        skipPrerender: true
+      }
+    };
+  }
+  return route;
+});
+
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
-    provideClientHydration(withEventReplay()),
-    provideRouter(routes),
+    provideRouter(routeConfig),
+    provideClientHydration(),
+    provideHttpClient(withFetch()),
     { provide: APP_INITIALIZER, useFactory: initKeycloak, deps: [KeycloakService], multi: true },
   ],
 };

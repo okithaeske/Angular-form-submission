@@ -27,7 +27,12 @@ export class KeycloakService {
     const opts: KeycloakInitOptions = {
       onLoad: 'check-sso',
       pkceMethod: 'S256',
-      // silentCheckSsoRedirectUri: window.location.origin + '/src/silent-check-sso.html',
+      // The silent-check-sso HTML must be served from the app root. The file lives in `src/silent-check-sso.html`
+      // and is copied to the app root by the Angular build (see angular.json assets).
+      silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+      // If you still get timeouts due to third-party cookie restrictions, you can disable the
+      // periodic iframe check by setting `checkLoginIframe: false` here.
+      // checkLoginIframe: false,
     };
 
     return this.keycloak.init(opts);
