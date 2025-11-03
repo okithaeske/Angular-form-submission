@@ -23,7 +23,19 @@ export class Home {
 
   async getStudents(): Promise<any[]> {
     try {
-      const data = await fetch(this.url);
+      const token = this.auth.getToken();
+
+      const data = await fetch(this.url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!data.ok) {
+        throw new Error(`Failed to fetch: ${data.status} ${data.statusText}`);
+      }
+
       return (await data.json()) ?? [];
     } catch (error) {
       console.error('Error fetching students:', error);
@@ -37,13 +49,17 @@ export class Home {
     }
 
     try {
-      const res = await fetch(`${this.url}/${id}`, { method: 'DELETE' });
+      const token = this.auth.getToken();
+      const res = await fetch(`${this.url}/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      if (!res.ok) {
-        throw new Error('Failed to delete student');
-      }
+      if (!res.ok) throw new Error('Failed to delete student');
 
-      this.students = this.students.filter((student) => Number(student.id) !== id);
+      this.students = this.students.filter((s) => Number(s.id) !== id);
       alert('Student deleted successfully');
     } catch (error) {
       alert((error as Error).message);

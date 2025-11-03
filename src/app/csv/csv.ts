@@ -53,7 +53,7 @@ export class Csv {
     this.uploadStatus = 'uploading';
     this.responseMessage = '';
     
-    this.http.post<UploadResponse>('http://localhost:5048/api/csv/upload', formData, {
+    this.http.post<UploadResponse>('http://localhost:5285/api/csv/upload', formData, {
       reportProgress: true,
       observe: 'events'
     }).subscribe({
