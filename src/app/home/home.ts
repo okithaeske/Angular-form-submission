@@ -1,24 +1,33 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { KeycloakService } from '../auth/keycloak.service';
+import { NotificationService } from '../services/notification.service';
+import { NotificationCenterComponent } from '../notification-center/notification-center.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, NotificationCenterComponent],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-export class Home {
+export class Home implements OnInit, OnDestroy {
+  private readonly notifications = inject(NotificationService);
+
   auth = inject(KeycloakService);
   url = 'http://localhost:5195/api/students';
   students: any[] = [];
-  hasUnreadNotifications = false;
   navOpen = false;
 
-  async ngOnInit() {
+  async ngOnInit(): Promise<void> {
+    this.notifications.flushPersistent();
+    this.notifications.activateImportFeed();
     this.students = await this.getStudents();
+  }
+
+  ngOnDestroy(): void {
+    this.notifications.deactivateImportFeed();
   }
 
   async getStudents(): Promise<any[]> {
@@ -27,64 +36,59 @@ export class Home {
 
       const data = await fetch(this.url, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: 'Bearer ' + token,
           'Content-Type': 'application/json',
         },
       });
 
       if (!data.ok) {
-        throw new Error(`Failed to fetch: ${data.status} ${data.statusText}`);
+        throw new Error('Failed to fetch: ' + data.status + ' ' + data.statusText);
       }
 
       return (await data.json()) ?? [];
     } catch (error) {
+      this.notifications.error('Unable to load students. Please try again.');
       console.error('Error fetching students:', error);
       return [];
     }
   }
 
-  async deleteStudent(id: number) {
+  async deleteStudent(id: number): Promise<void> {
     if (!confirm('Are you sure you want to delete this student?')) {
       return;
     }
 
     try {
       const token = this.auth.getToken();
-      const res = await fetch(`${this.url}/${id}`, {
+      const res = await fetch(this.url + '/' + id, {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: 'Bearer ' + token,
         },
       });
 
-      if (!res.ok) throw new Error('Failed to delete student');
+      if (!res.ok) {
+        throw new Error('Failed to delete student');
+      }
 
-      this.students = this.students.filter((s) => Number(s.id) !== id);
-      alert('Student deleted successfully');
+      this.students = this.students.filter(student => Number(student.id) !== id);
+      this.notifications.success('Student deleted successfully.');
     } catch (error) {
-      alert((error as Error).message);
+      const message = (error as Error).message || 'Failed to delete student.';
+      this.notifications.error(message);
     }
   }
 
   async getStudentsbyID(id: number): Promise<any | undefined> {
-    const data = await fetch(`${this.url}/${id}`);
+    const data = await fetch(this.url + '/' + id);
     return (await data.json()) ?? {};
   }
 
-  openNotifications() {
-    const message = this.hasUnreadNotifications
-      ? 'You have new notifications.'
-      : 'No new notifications right now.';
-    alert(message);
-    this.hasUnreadNotifications = false;
-    this.closeNav();
-  }
-
-  toggleNav() {
+  toggleNav(): void {
     this.navOpen = !this.navOpen;
   }
 
-  closeNav() {
+  closeNav(): void {
     this.navOpen = false;
   }
 }

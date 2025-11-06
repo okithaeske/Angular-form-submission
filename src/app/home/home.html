@@ -17,10 +17,10 @@
     </div>
 
     <div class="nav-actions" id="navActions" [class.nav-actions--open]="navOpen">
-      <button type="button" class="nav-btn nav-btn--ghost" (click)="openNotifications()">
-        Notifications
-        <span class="notification-dot" *ngIf="hasUnreadNotifications"></span>
-      </button>
+      <app-notification-center
+        label="Notifications"
+        triggerClass="nav-btn nav-btn--ghost"
+      ></app-notification-center>
       <button
         type="button"
         class="nav-btn"

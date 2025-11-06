@@ -1,0 +1,205 @@
+:host {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background-color: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notification-trigger:hover,
+.notification-trigger:focus-visible {
+  background-color: rgba(99, 102, 241, 0.1);
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.15);
+}
+
+.notification-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  padding: 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: #ef4444;
+  color: #fff;
+}
+
+.notification-panel {
+  position: absolute;
+  right: 0;
+  margin-top: 0.75rem;
+  width: min(22rem, 90vw);
+  max-height: 70vh;
+  border-radius: 1rem;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
+  background-color: #0f172a;
+  color: #e2e8f0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.notification-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  gap: 1rem;
+}
+
+.notification-panel__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.notification-panel__subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: rgba(226, 232, 240, 0.75);
+}
+
+.notification-panel__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.notification-panel__action {
+  border: none;
+  background: rgba(148, 163, 184, 0.12);
+  color: inherit;
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.notification-panel__action:hover,
+.notification-panel__action:focus-visible {
+  background: rgba(148, 163, 184, 0.24);
+}
+
+.notification-list {
+  padding: 0.75rem 0.75rem 1rem;
+  overflow-y: auto;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.notification-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.9rem;
+  background-color: rgba(15, 23, 42, 0.65);
+  border: 1px solid transparent;
+  position: relative;
+}
+
+.notification-item--unread {
+  border-color: rgba(96, 165, 250, 0.45);
+  background-color: rgba(37, 99, 235, 0.18);
+}
+
+.notification-item--success {
+  border-left: 4px solid #22c55e;
+}
+
+.notification-item--info {
+  border-left: 4px solid #60a5fa;
+}
+
+.notification-item--warning {
+  border-left: 4px solid #fbbf24;
+}
+
+.notification-item--error {
+  border-left: 4px solid #ef4444;
+}
+
+.notification-item__icon {
+  width: 0.75rem;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.4;
+  margin-top: 0.3rem;
+}
+
+.notification-item--success .notification-item__icon { color: #22c55e; }
+.notification-item--info .notification-item__icon { color: #60a5fa; }
+.notification-item--warning .notification-item__icon { color: #fbbf24; }
+.notification-item--error .notification-item__icon { color: #ef4444; }
+
+.notification-item__body {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.notification-item__message {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.notification-item__meta {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: rgba(226, 232, 240, 0.65);
+}
+
+.notification-item__source::before {
+  content: '#';
+  opacity: 0.35;
+  margin-right: 0.25rem;
+}
+
+.notification-item__dismiss {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.25rem;
+}
+
+.notification-item__dismiss:hover,
+.notification-item__dismiss:focus-visible {
+  color: #f87171;
+}
+
+.notification-empty {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgba(226, 232, 240, 0.7);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}

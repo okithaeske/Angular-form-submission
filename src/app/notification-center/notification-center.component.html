@@ -1,0 +1,64 @@
+<button
+  type="button"
+  class="notification-trigger {{ triggerClass }}"
+  (click)="togglePanel()"
+  [attr.aria-expanded]="open"
+  aria-haspopup="true"
+>
+  <span class="notification-trigger__label">{{ label }}</span>
+  <ng-container *ngIf="unreadCount$ | async as unread">
+    <span
+      class="notification-badge {{ badgeClass }}"
+      *ngIf="unread > 0"
+      aria-label="You have {{ unread }} unread notifications"
+    >
+      {{ unread }}
+    </span>
+  </ng-container>
+</button>
+
+<div class="notification-panel" *ngIf="open">
+  <header class="notification-panel__header">
+    <div>
+      <h3 class="notification-panel__title">Latest Updates</h3>
+      <p class="notification-panel__subtitle">Stay on top of imports and actions</p>
+    </div>
+    <div class="notification-panel__actions">
+      <button type="button" class="notification-panel__action" (click)="markAllRead()">
+        Mark read
+      </button>
+      <button type="button" class="notification-panel__action" (click)="clearAll()">
+        Clear
+      </button>
+    </div>
+  </header>
+
+  <ng-container *ngIf="notifications$ | async as notifications">
+    <div class="notification-list" *ngIf="notifications.length; else emptyState">
+      <article
+        *ngFor="let item of notifications; trackBy: trackById"
+        class="notification-item notification-item--{{ item.kind }}"
+        [class.notification-item--unread]="!item.read"
+      >
+        <div class="notification-item__icon" aria-hidden="true"></div>
+        <div class="notification-item__body">
+          <p class="notification-item__message">{{ item.message }}</p>
+          <div class="notification-item__meta">
+            <span class="notification-item__time">{{ item.timestamp | date: 'shortTime' }}</span>
+            <span class="notification-item__source" *ngIf="item.source">{{ item.source }}</span>
+          </div>
+        </div>
+        <button type="button" class="notification-item__dismiss" (click)="remove(item.id)">
+          <span class="sr-only">Dismiss</span>
+          ×
+        </button>
+      </article>
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #emptyState>
+  <div class="notification-empty">
+    <p>No notifications yet. Upload a CSV or take an action to see updates here.</p>
+  </div>
+</ng-template>
