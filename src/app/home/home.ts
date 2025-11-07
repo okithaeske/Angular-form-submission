@@ -22,12 +22,10 @@ export class Home implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.notifications.flushPersistent();
-    this.notifications.activateImportFeed();
     this.students = await this.getStudents();
   }
 
   ngOnDestroy(): void {
-    this.notifications.deactivateImportFeed();
   }
 
   async getStudents(): Promise<any[]> {

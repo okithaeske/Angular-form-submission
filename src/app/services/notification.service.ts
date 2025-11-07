@@ -1,4 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -17,18 +18,22 @@ export interface NotificationItem {
   timestamp: string;
   source?: string;
   read: boolean;
+  remoteId?: string;
 }
 
 interface NotificationQueueItem {
   kind: NotificationKind;
   message: string;
   options?: NotificationOptions;
+  id?: string;
+  remoteId?: string;
 }
 
-interface StoredNotification {
-  kind: NotificationKind;
+interface StoredNotification extends NotificationQueueItem {}
+
+interface IncomingNotificationPayload {
   message: string;
-  options?: NotificationOptions;
+  notificationId?: string;
 }
 
 const PERSIST_STORAGE_KEY = 'app:persistent-notifications';
@@ -37,6 +42,7 @@ const PERSIST_STORAGE_KEY = 'app:persistent-notifications';
 export class NotificationService implements OnDestroy {
   private readonly isBrowser = typeof window !== 'undefined';
   private readonly historyLimit = 50;
+  private readonly notificationApiUrl = 'http://localhost:5144/api/notifications';
   private readonly messagesSubject = new BehaviorSubject<NotificationItem[]>([]);
   private readonly queue: NotificationQueueItem[] = [];
   private readonly activeTimers = new Set<number>();
@@ -44,6 +50,8 @@ export class NotificationService implements OnDestroy {
   private reconnectHandle?: ReturnType<typeof setTimeout>;
   private importFeedActive = false;
   private importFeedFirstMessage = true;
+
+  constructor(private readonly http: HttpClient) {}
 
   readonly messages$ = this.messagesSubject.asObservable();
   readonly unreadCount$ = this.messages$.pipe(
@@ -76,18 +84,37 @@ export class NotificationService implements OnDestroy {
   }
 
   markAsRead(id: string): void {
-    const next = this.messagesSubject.value.map(item =>
-      item.id === id ? { ...item, read: true } : item
-    );
+    const current = this.messagesSubject.value;
+    const target = current.find(item => item.id === id);
+    if (!target) {
+      return;
+    }
+
+    if (!target.read && target.remoteId) {
+      this.sendReadAck(target.remoteId);
+    }
+
+    const next = current.filter(item => item.id !== id);
     this.messagesSubject.next(next);
   }
 
   markAllRead(): void {
-    if (!this.messagesSubject.value.some(item => !item.read)) {
+    const current = this.messagesSubject.value;
+    const unread = current.filter(item => !item.read);
+    if (!unread.length) {
       return;
     }
 
-    const next = this.messagesSubject.value.map(item => ({ ...item, read: true }));
+    const remoteIds = new Set<string>();
+    unread.forEach(item => {
+      if (item.remoteId) {
+        remoteIds.add(item.remoteId);
+      }
+    });
+    remoteIds.forEach(id => this.sendReadAck(id));
+
+    const idsToRemove = new Set(unread.map(item => item.id));
+    const next = current.filter(item => !idsToRemove.has(item.id));
     this.messagesSubject.next(next);
   }
 
@@ -138,6 +165,10 @@ export class NotificationService implements OnDestroy {
   }
 
   activateImportFeed(): void {
+    if (this.importFeedActive) {
+      return;
+    }
+
     if (!this.isBrowser || this.importFeedActive) {
       return;
     }
@@ -152,16 +183,32 @@ export class NotificationService implements OnDestroy {
       return;
     }
 
+    if (this.importFeedActive) {
+      return;
+    }
+
+    if (!this.importFeedActive) {
+      return;
+    }
+
     this.importFeedActive = false;
     this.teardownSocket();
   }
 
-  private enqueue(kind: NotificationKind, message: string, options?: NotificationOptions): void {
+  private enqueue(
+    kind: NotificationKind,
+    message: string,
+    options?: NotificationOptions,
+    id?: string,
+    remoteId?: string
+  ): void {
     const delay = Math.max(0, options?.delay ?? 0);
     const queueItem: NotificationQueueItem = {
       kind,
       message,
       options: options ? { ...options } : undefined,
+      id,
+      remoteId,
     };
 
     if (delay > 0) {
@@ -191,13 +238,15 @@ export class NotificationService implements OnDestroy {
 
     while (this.queue.length) {
       const item = this.queue.shift()!;
+      const notificationId = item.remoteId ?? item.id ?? this.createId();
       const notification: NotificationItem = {
-        id: this.createId(),
+        id: notificationId,
         kind: item.kind,
         message: item.message,
         timestamp: new Date().toISOString(),
         source: item.options?.source,
         read: Boolean(item.options?.autoRead),
+        remoteId: item.remoteId,
       };
 
       const next = [...this.messagesSubject.value, notification].slice(-this.historyLimit);
@@ -233,10 +282,10 @@ export class NotificationService implements OnDestroy {
     }
 
     this.socket.onmessage = event => {
-      const status = this.extractStatus(event.data);
-      if (status) {
+      const incoming = this.extractNotificationPayload(event.data);
+      if (incoming) {
         const delay = this.importFeedFirstMessage ? 700 : 150;
-        this.enqueue('info', status, { delay, source: 'import' });
+        this.enqueue('info', incoming.message, { delay, source: 'import' }, incoming.notificationId, incoming.notificationId);
         this.importFeedFirstMessage = false;
       }
     };
@@ -303,7 +352,7 @@ export class NotificationService implements OnDestroy {
     }
   }
 
-  private extractStatus(payload: string): string | null {
+  private extractNotificationPayload(payload: string): IncomingNotificationPayload | null {
     if (!payload) {
       return null;
     }
@@ -311,21 +360,37 @@ export class NotificationService implements OnDestroy {
     try {
       const data = JSON.parse(payload);
       if (typeof data === 'string') {
-        return data;
+        return { message: data };
       }
 
       if (typeof data?.status === 'string') {
-        return data.status;
+        return {
+          message: data.status,
+          notificationId: typeof data?.notificationId === 'string' ? data.notificationId : undefined,
+        };
       }
 
       if (typeof data?.message === 'string') {
-        return data.message;
+        return {
+          message: data.message,
+          notificationId: typeof data?.notificationId === 'string' ? data.notificationId : undefined,
+        };
       }
     } catch {
       // ignore parse failures
     }
 
-    return typeof payload === 'string' ? payload : null;
+    return typeof payload === 'string' ? { message: payload } : null;
+  }
+
+  private sendReadAck(remoteId: string): void {
+    if (!this.isBrowser || !remoteId) {
+      return;
+    }
+
+    this.http.post<void>(`${this.notificationApiUrl}/${remoteId}/read`, {}).subscribe({
+      error: error => console.error('Failed to update notification read status', error),
+    });
   }
 
   private resolveSocketUrl(): string | null {
@@ -359,3 +424,6 @@ export class NotificationService implements OnDestroy {
     return Math.random().toString(36).slice(2, 11);
   }
 }
+
+
+

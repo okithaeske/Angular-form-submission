@@ -5,7 +5,6 @@ import {
   EventEmitter,
   HostListener,
   Input,
-  OnDestroy,
   Output,
 } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -21,7 +20,7 @@ import {
   templateUrl: './notification-center.component.html',
   styleUrl: './notification-center.component.scss',
 })
-export class NotificationCenterComponent implements OnDestroy {
+export class NotificationCenterComponent {
   @Input() label = 'Notifications';
   @Input() triggerClass = '';
   @Input() badgeClass = '';
@@ -31,8 +30,6 @@ export class NotificationCenterComponent implements OnDestroy {
   open = false;
   readonly notifications$: Observable<NotificationItem[]>;
   readonly unreadCount$: Observable<number>;
-
-  private markReadHandle?: ReturnType<typeof setTimeout>;
 
   constructor(
     private readonly notificationService: NotificationService,
@@ -53,7 +50,6 @@ export class NotificationCenterComponent implements OnDestroy {
 
     this.open = true;
     this.opened.emit();
-    this.scheduleMarkAllRead();
   }
 
   closePanel(): void {
@@ -62,7 +58,6 @@ export class NotificationCenterComponent implements OnDestroy {
     }
 
     this.open = false;
-    this.clearMarkAllReadTimer();
     this.closed.emit();
   }
 
@@ -76,10 +71,6 @@ export class NotificationCenterComponent implements OnDestroy {
 
   remove(id: string): void {
     this.notificationService.remove(id);
-  }
-
-  ngOnDestroy(): void {
-    this.clearMarkAllReadTimer();
   }
 
   @HostListener('document:click', ['$event'])
@@ -103,18 +94,4 @@ export class NotificationCenterComponent implements OnDestroy {
     return item.id;
   }
 
-  private scheduleMarkAllRead(): void {
-    this.clearMarkAllReadTimer();
-    this.markReadHandle = setTimeout(() => {
-      this.notificationService.markAllRead();
-      this.markReadHandle = undefined;
-    }, 400);
-  }
-
-  private clearMarkAllReadTimer(): void {
-    if (this.markReadHandle) {
-      clearTimeout(this.markReadHandle);
-      this.markReadHandle = undefined;
-    }
-  }
 }
