@@ -16,7 +16,7 @@ export class Home implements OnInit, OnDestroy {
   private readonly notifications = inject(NotificationService);
 
   auth = inject(KeycloakService);
-  url = 'http://localhost:5195/api/students';
+  url = 'http://localhost:5144/api/students';
   students: any[] = [];
   navOpen = false;
 

@@ -11,7 +11,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
   styleUrl: './form.scss',
 })
 export class Form {
-  url = 'http://localhost:5195/api/students';
+  url = 'http://localhost:5144/api/students';
 
   name = '';
   studentId = '';
