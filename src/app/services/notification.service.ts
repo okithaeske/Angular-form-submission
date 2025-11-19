@@ -42,7 +42,7 @@ const PERSIST_STORAGE_KEY = 'app:persistent-notifications';
 export class NotificationService implements OnDestroy {
   private readonly isBrowser = typeof window !== 'undefined';
   private readonly historyLimit = 50;
-  private readonly notificationApiUrl = 'http://localhost:5144/api/notifications';
+  private readonly notificationApiUrl = 'http://host.docker.internal:7070/api/notifications';
   private readonly messagesSubject = new BehaviorSubject<NotificationItem[]>([]);
   private readonly queue: NotificationQueueItem[] = [];
   private readonly activeTimers = new Set<number>();
@@ -401,7 +401,7 @@ export class NotificationService implements OnDestroy {
     const protocol = window.location?.protocol ?? 'http:';
     const isSecure = protocol === 'https:';
 
-    return isSecure ? 'wss://localhost:7247/ws/import' : 'ws://localhost:5144/ws/import';
+    return isSecure ? 'wss://host.docker.internal:7070/ws/import' : 'ws://host.docker.internal:7070/ws/import';
   }
 
   private clearTimers(): void {
@@ -424,6 +424,7 @@ export class NotificationService implements OnDestroy {
     return Math.random().toString(36).slice(2, 11);
   }
 }
+
 
 
 

@@ -19,7 +19,7 @@ export class KeycloakService {
     }
 
     this.keycloak = new Keycloak({
-      url: 'http://localhost:8080', // Keycloak base URL
+      url: 'http://host.docker.internal:8080', // Keycloak base URL
       realm: 'master',
       clientId: 'form',
     });
@@ -67,3 +67,4 @@ export class KeycloakService {
     return this.isBrowser ? this.keycloak?.token : undefined;
   }
 }
+

@@ -5,6 +5,8 @@ import { KeycloakService } from '../auth/keycloak.service';
 import { NotificationService } from '../services/notification.service';
 import { NotificationCenterComponent } from '../notification-center/notification-center.component';
 
+const STUDENT_API_URL = 'http://host.docker.internal:5195/api/students';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -14,9 +16,9 @@ import { NotificationCenterComponent } from '../notification-center/notification
 })
 export class Home implements OnInit, OnDestroy {
   private readonly notifications = inject(NotificationService);
+  readonly auth = inject(KeycloakService);
 
-  auth = inject(KeycloakService);
-  url = 'http://localhost:5144/api/students';
+  url = STUDENT_API_URL;
   students: any[] = [];
   navOpen = false;
 
@@ -25,28 +27,30 @@ export class Home implements OnInit, OnDestroy {
     this.students = await this.getStudents();
   }
 
-  ngOnDestroy(): void {
-  }
+  ngOnDestroy(): void {}
 
   async getStudents(): Promise<any[]> {
     try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
       const token = this.auth.getToken();
-
-      const data = await fetch(this.url, {
-        headers: {
-          Authorization: 'Bearer ' + token,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!data.ok) {
-        throw new Error('Failed to fetch: ' + data.status + ' ' + data.statusText);
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
 
-      return (await data.json()) ?? [];
+      const response = await fetch(this.url, { headers });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch students: ${response.status} ${response.statusText}`);
+      }
+
+      const payload = await response.json();
+      return Array.isArray(payload) ? payload : [];
     } catch (error) {
+      console.error('Error fetching students', { url: this.url, error });
       this.notifications.error('Unable to load students. Please try again.');
-      console.error('Error fetching students:', error);
       return [];
     }
   }
@@ -57,29 +61,51 @@ export class Home implements OnInit, OnDestroy {
     }
 
     try {
+      const headers: HeadersInit = {};
       const token = this.auth.getToken();
-      const res = await fetch(this.url + '/' + id, {
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${this.url}/${id}`, {
         method: 'DELETE',
-        headers: {
-          Authorization: 'Bearer ' + token,
-        },
+        headers,
       });
 
       if (!res.ok) {
-        throw new Error('Failed to delete student');
+        throw new Error(`Failed to delete student (${res.status})`);
       }
 
       this.students = this.students.filter(student => Number(student.id) !== id);
       this.notifications.success('Student deleted successfully.');
     } catch (error) {
+      console.error('Error deleting student', { id, error });
       const message = (error as Error).message || 'Failed to delete student.';
       this.notifications.error(message);
     }
   }
 
   async getStudentsbyID(id: number): Promise<any | undefined> {
-    const data = await fetch(this.url + '/' + id);
-    return (await data.json()) ?? {};
+    try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      const token = this.auth.getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${this.url}/${id}`, { headers });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch student ${id}: ${response.status} ${response.statusText}`);
+      }
+
+      return (await response.json()) ?? {};
+    } catch (error) {
+      console.error('Error fetching student by ID', { id, error });
+      this.notifications.error('Unable to load the requested student.');
+      return undefined;
+    }
   }
 
   toggleNav(): void {

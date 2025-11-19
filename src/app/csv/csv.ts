@@ -8,6 +8,8 @@ interface UploadResponse {
   path?: string;
 }
 
+const CSV_UPLOAD_URL = 'http://host.docker.internal:5285/api/csv/upload';
+
 @Component({
   selector: 'app-csv',
   standalone: true,
@@ -16,7 +18,7 @@ interface UploadResponse {
   styleUrl: './csv.scss',
 })
 export class Csv {
-  private readonly uploadUrl = 'http://localhost:5285/api/csv/upload';
+  private readonly uploadUrl = CSV_UPLOAD_URL;
 
   selectedFile: File | null = null;
   isSubmitting = false;

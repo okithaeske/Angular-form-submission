@@ -1,7 +1,9 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+
+const STUDENT_API_URL = 'http://host.docker.internal:5195/api/students';
 
 @Component({
   selector: 'app-form',
@@ -11,7 +13,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
   styleUrl: './form.scss',
 })
 export class Form {
-  url = 'http://localhost:5144/api/students';
+  url = STUDENT_API_URL;
 
   name = '';
   studentId = '';
@@ -44,6 +46,7 @@ export class Form {
       this.email = student.email;
       this.courseName = student.courseName;
     } catch (error) {
+      console.error('Error loading student', { id, error });
       alert((error as Error).message);
     }
   }
@@ -62,17 +65,14 @@ export class Form {
     };
 
     try {
-      let res;
-      Response;
+      let res: Response;
       if (this.editMode && this.studentIdToEdit !== null) {
-        // update existing record
         res = await fetch(`${this.url}/${this.studentIdToEdit}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
       } else {
-        // add new record
         res = await fetch(this.url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -80,7 +80,7 @@ export class Form {
         });
       }
 
-      if (res.status === 409){
+      if (res.status === 409) {
         throw new Error('Student with this Student ID already exists');
       }
 
@@ -92,6 +92,7 @@ export class Form {
       alert(this.editMode ? 'Student updated successfully!' : 'Student added successfully!');
       await this.router.navigate(['/']);
     } catch (error) {
+      console.error('Form submission error', { editMode: this.editMode, error });
       alert((error as Error).message);
     }
   }
